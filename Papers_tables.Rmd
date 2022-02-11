@@ -1,0 +1,78 @@
+---
+title: "Latest Journals"
+author: "IOJ"
+output: html_document
+---
+
+
+
+```{css style_def, echo=FALSE}
+body {
+  background-color:black;
+  color:white;
+  font-size: 2vh;
+}
+
+.main-container {
+margin-left:10vw;
+margin-right:10vw;
+}
+
+.dataTables_wrapper {
+width:60vw;
+}
+
+td {
+background-color:black;
+color: white;
+}
+
+button {
+color: white;
+}
+
+```
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(xml2)
+library(rvest)
+library(purrr)
+library(odbc)
+library(RMariaDB)
+library(DT)
+
+mariad_db_conn <- dbConnect(
+  drv = RMariaDB::MariaDB(), 
+  username = "PROD_JOURNALS",
+  password = "PROD_JOURNALS", 
+  host = "192.168.1.153", 
+  port = 3306,
+  dbname="JOURNALS_PAPERS",
+  timeout=Inf
+)
+
+query_L3M <- paste("SELECT * FROM JOURNALS_PAPERS.PAPERS WHERE DATE_ADDED>'",
+                   today()-months(3),
+                   "'",
+                   sep="")
+
+journals <- dbGetQuery(mariad_db_conn,
+           query_L3M)
+
+```
+
+## Papers
+### Showing last 3 months papers
+```{r pressure, echo=FALSE}
+datatable(journals,
+          options = list(
+            pageLength=25,
+            searchHighlit=T),
+          filter="top",
+          extensions = 'Responsive',
+          rownames = FALSE,
+          height=1600,
+          width=800)
+```
