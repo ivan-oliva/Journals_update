@@ -1,4 +1,5 @@
 library(tidyverse)
+library(lubridate)
 library(xml2)
 library(rvest)
 library(purrr)
@@ -116,7 +117,8 @@ papers_in_base <- dbGetQuery(mariad_db_conn,
   pull(PAPER)
 
 jounrnals_db_table <- jounrnals_db_table %>%
-  filter(!PAPER %in% papers_in_base)
+  filter(!PAPER %in% papers_in_base) %>%
+  mutate(PAPER=str_sub(PAPER,1,199))
 
 if(nrow(jounrnals_db_table)>0) {
   table_id <- Id(schema="JOURNALS_PAPERS",
